@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123b32"><meta name="description" content="Apna Digital Tools - छोटे बिजनेस के लिए आसान डिजिटल टूल्स">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Apna Digital Tools</title>
+<style>
+:root{--g:#123b32;--g2:#19745b;--bg:#f4f7f5;--ink:#18231f;--muted:#64736c;--line:#dce6e0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,Arial,sans-serif}
+header{background:var(--g);color:white;padding:22px 16px 18px} .top{max-width:1080px;margin:auto;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.brand{font-size:23px;font-weight:800}.tag{font-size:13px;opacity:.85;margin-top:3px}
+.wrap{max-width:1080px;margin:auto;padding:16px}
+.hero{background:#e3f1eb;border-radius:18px;padding:22px;margin:14px 0}
+.hero h1{font-size:25px;line-height:1.2;margin:0 0 8px;color:var(--g)}.hero p{margin:0;color:#40584e}
+.controls{display:flex;gap:9px;flex-wrap:wrap;margin:16px 0}
+input,select{border:1px solid var(--line);border-radius:10px;padding:12px;background:white;font:inherit}
+#search{flex:1;min-width:190px}.btn{border:0;border-radius:10px;padding:11px 15px;background:var(--g2);color:white;font-weight:700;cursor:pointer}.btn.alt{background:#e3ece7;color:var(--g)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:13px}
+.card{background:white;border:1px solid var(--line);border-radius:15px;padding:15px;display:flex;flex-direction:column;gap:9px}
+.emoji{font-size:32px}.card h3{margin:0;font-size:17px}.card p{margin:0;color:var(--muted);font-size:13px;line-height:1.5;flex:1}
+.price{font-size:20px;font-weight:800;color:var(--g)}.pill{font-size:11px;background:#edf5f0;color:var(--g);padding:5px 8px;border-radius:30px;width:max-content}
+.cardfoot{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sectiontitle{margin:22px 0 10px}.muted{color:var(--muted);font-size:12px}
+footer{margin-top:28px;padding:22px 12px;background:#e8efeb;text-align:center;color:#53645b;font-size:13px}
+.modalbg{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:15px;z-index:10}
+.modal{background:white;border-radius:16px;padding:20px;max-width:450px;width:100%;max-height:90vh;overflow:auto}
+.modal h2{margin-top:0}.field{margin:10px 0}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}.field input{width:100%}
+.close{float:right;background:#edf1ee;color:#24352d}.empty{text-align:center;padding:30px;color:var(--muted)}
+@media(max-width:560px){.top{align-items:flex-start;flex-direction:column}.hero h1{font-size:22px}}
+</style></head>
+<body>
+<header><div class="top"><div><div class="brand">🧰 Apna Digital Tools</div><div class="tag">छोटे बिजनेस के लिए आसान डिजिटल टूल्स</div></div><button class="btn alt" onclick="openAdmin()">सेटिंग / Admin</button></div></header>
+<main class="wrap">
+<section class="hero"><h1>आपके काम के छोटे ऐप — एक ही जगह</h1><p>GST, इलेक्ट्रिकल, ऑनलाइन सेलिंग, स्टॉक और रोज़मर्रा के हिसाब के उपयोगी टूल्स।</p></section>
+<div class="controls"><input id="search" placeholder="ऐप खोजें..." oninput="render()"><select id="category" onchange="render()"><option value="">सभी कैटेगरी</option><option>बिजनेस</option><option>इलेक्ट्रिकल</option><option>ऑनलाइन सेलिंग</option><option>कंस्ट्रक्शन</option></select><button class="btn" onclick="showCart()">मेरी खरीदारी (<span id="cartCount">0</span>)</button></div>
+<h2 class="sectiontitle">उपलब्ध डिजिटल टूल्स</h2><div id="products" class="grid"></div>
+<section class="hero"><h2>अपना टूल बनवाना चाहते हैं?</h2><p>अपनी जरूरत बताएं — कस्टम टूल के लिए संपर्क करें।</p><br><button class="btn" onclick="contactCustom()">कस्टम ऐप के लिए पूछें</button></section>
+</main>
+<footer>© <span id="year"></span> Apna Digital Tools · Demo Storefront<br>भुगतान और डिजिटल डिलीवरी सक्रिय करने से पहले अपना संपर्क, UPI और वास्तविक ऐप लिंक सेट करें।</footer>
+
+<div class="modalbg" id="modalbg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal"></div></div>
+<script>
+const KEY='adt_store_settings_v1';
+let settings=JSON.parse(localStorage.getItem(KEY)||'null')||{whatsapp:'',upi:'',owner:'Apna Digital Tools'};
+let cart=[];
+const products=[
+{id:'gst',name:'GST Calculator',cat:'बिजनेस',emoji:'🧾',price:49,desc:'GST जोड़ें/हटाएं, CGST-SGST और IGST की बेसिक गणना।',features:'GST inclusive/exclusive calculation',link:''},
+{id:'amazon',name:'Amazon Profit Calculator',cat:'ऑनलाइन सेलिंग',emoji:'📦',price:99,desc:'खरीद, GST, मार्केटप्लेस फीस, डिलीवरी और विज्ञापन के बाद अनुमानित मुनाफा।',features:'Selling price and fee breakdown',link:''},
+{id:'electrical',name:'Electrical Calculator',cat:'इलेक्ट्रिकल',emoji:'⚡',price:149,desc:'इलेक्ट्रिकल दुकानदारों के लिए यूनिट, वायर और सामान्य कैलकुलेशन टूल्स।',features:'Electrical trade calculations',link:''},
+{id:'transport',name:'Transport Freight Calculator',cat:'बिजनेस',emoji:'🚚',price:99,desc:'वाहन, वजन, भाड़ा और प्रति किलो/पीस लागत का हिसाब।',features:'Freight and per-unit cost',link:''},
+{id:'stock',name:'Stock Manager Lite',cat:'बिजनेस',emoji:'📊',price:199,desc:'आइटम, ओपनिंग स्टॉक, आवक-जावक और बचा हुआ स्टॉक।',features:'Basic inventory tracking',link:''},
+{id:'construction',name:'Construction Calculator',cat:'कंस्ट्रक्शन',emoji:'🏗️',price:99,desc:'निर्माण सामग्री की अनुमानित मात्रा और लागत निकालने का टूल।',features:'Material estimate',link:''}
+];
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function render(){let q=document.getElementById('search').value.toLowerCase(),cat=document.getElementById('category').value;
+let list=products.filter(p=>(!cat||p.cat===cat)&&(p.name+' '+p.desc+' '+p.cat).toLowerCase().includes(q));
+document.getElementById('products').innerHTML=list.map(p=>`<article class="card"><div class="emoji">${p.emoji}</div><span class="pill">${p.cat}</span><h3>${p.name}</h3><p>${p.desc}</p><div class="cardfoot"><span class="price">₹${p.price}</span><button class="btn" onclick="addCart('${p.id}')">खरीदें</button></div></article>`).join('')||'<div class="empty">कोई ऐप नहीं मिला।</div>';
+document.getElementById('cartCount').textContent=cart.length}
+function addCart(id){if(!cart.includes(id))cart.push(id);render();alert('ऐप कार्ट में जोड़ दिया गया।')}
+function openModal(content){document.getElementById('modal').innerHTML=content;document.getElementById('modalbg').style.display='flex'}
+function closeModal(){document.getElementById('modalbg').style.display='none'}
+function showCart(){let items=products.filter(p=>cart.includes(p.id)),total=items.reduce((s,p)=>s+p.price,0);
+openModal(`<button class="btn close" onclick="closeModal()">बंद करें</button><h2>आपकी खरीदारी</h2>${items.length?items.map(p=>`<p>${p.emoji} ${p.name} — ₹${p.price} <button class="btn alt" onclick="removeCart('${p.id}')">हटाएं</button></p>`).join(''):'<p>कार्ट खाली है।</p>'}<hr><h3>कुल: ₹${total}</h3><p class="muted">यह डेमो ऑर्डर है। वास्तविक ऑनलाइन पेमेंट अभी जोड़ा नहीं गया है।</p><div class="field"><label>आपका नाम</label><input id="buyer" placeholder="नाम"></div><div class="field"><label>मोबाइल नंबर</label><input id="phone" placeholder="मोबाइल नंबर"></div><button class="btn" onclick="placeOrder()">WhatsApp पर ऑर्डर भेजें</button>`)}
+function removeCart(id){cart=cart.filter(x=>x!==id);showCart();render()}
+function placeOrder(){let name=document.getElementById('buyer').value.trim(),phone=document.getElementById('phone').value.trim();if(!name||!phone){alert('नाम और मोबाइल नंबर भरें');return}
+let items=products.filter(p=>cart.includes(p.id)),total=items.reduce((s,p)=>s+p.price,0),msg=`नमस्ते, मैं Apna Digital Tools से ऐप खरीदना चाहता/चाहती हूं।%0Aनाम: ${encodeURIComponent(name)}%0Aमोबाइल: ${encodeURIComponent(phone)}%0Aऐप: ${encodeURIComponent(items.map(p=>p.name).join(', '))}%0Aकुल: ₹${total}`;
+if(!settings.whatsapp){alert('पहले Admin सेटिंग में WhatsApp नंबर जोड़ें।');return}window.open('https://wa.me/91'+settings.whatsapp+'?text='+msg,'_blank')}
+function openAdmin(){openModal(`<button class="btn close" onclick="closeModal()">बंद करें</button><h2>स्टोर सेटिंग</h2><p class="muted">अपना WhatsApp नंबर 10 अंकों में डालें। यह सेटिंग इसी ब्राउज़र में सेव होगी।</p><div class="field"><label>दुकान / ब्रांड नाम</label><input id="owner" value="${esc(settings.owner)}"></div><div class="field"><label>WhatsApp नंबर (10 अंक)</label><input id="wa" inputmode="numeric" value="${esc(settings.whatsapp)}" placeholder="जैसे 98XXXXXXXX"></div><div class="field"><label>UPI ID (अभी केवल रिकॉर्ड के लिए)</label><input id="upi" value="${esc(settings.upi)}" placeholder="name@upi"></div><button class="btn" onclick="saveSettings()">सेटिंग सेव करें</button><p class="muted">ध्यान दें: अभी ग्राहक ऑर्डर WhatsApp पर भेजता है। पेमेंट गेटवे/ऑटो डिलीवरी इस डेमो में नहीं है।</p>`)}
+function saveSettings(){settings={owner:document.getElementById('owner').value,whatsapp:document.getElementById('wa').value.replace(/\D/g,''),upi:document.getElementById('upi').value};localStorage.setItem(KEY,JSON.stringify(settings));document.querySelector('.brand').textContent='🧰 '+settings.owner;closeModal();alert('सेटिंग सेव हो गई।')}
+function contactCustom(){if(!settings.whatsapp){openAdmin();return}window.open('https://wa.me/91'+settings.whatsapp+'?text='+encodeURIComponent('नमस्ते, मुझे अपना कस्टम डिजिटल टूल बनवाना है।'),'_blank')}
+document.getElementById('year').textContent=new Date().getFullYear();document.querySelector('.brand').textContent='🧰 '+settings.owner;render();
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script></body></html>
